@@ -28,6 +28,8 @@
     </scm>
     <properties>
         <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
     <dependencies>
         <dependency>
@@ -118,6 +120,12 @@
             <artifactId>spoon-core</artifactId>
             <version>10.4.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.codehaus.mojo/build-helper-maven-plugin -->
+        <dependency>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>3.6.1</version>
+        </dependency>
 
     </dependencies>
 
@@ -157,7 +165,90 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <useDefaultDelimiters>true</useDefaultDelimiters>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>spoon</id>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/main/resources</directory>
+                        <filtering>false</filtering>
+                    </resource>
+                </resources>
+                <plugins>
+
+                    <!-- 1) Exécuter l'injector pendant generate-sources -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>run-spoon-injector</id>
+                                <phase>generate-sources</phase>
+                                <goals><goal>exec</goal></goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-jar</argument>
+
+                                        <!-- ⚠️ mets ici le chemin vers ton fat-jar logging-injector -->
+                                        <argument>/home/ahmedou-salem/master/2/s1/Évolution et restructions des logiciels/TP/workspace/logging-injector/logging-injector/target/logging-injector-1.0-SNAPSHOT.jar</argument>
+
+                                        <!-- input -->
+                                        <argument>${project.basedir}/src/main/java</argument>
+
+                                        <!-- output : on va modifier Main pour accepter un 2e argument (voir juste après) -->
+                                        <argument>${project.build.directory}/generated-sources/spoon</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- 2) Ajouter target/generated-sources/spoon comme source -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.6.1</version>
+                        <executions>
+                            <execution>
+                                <id>add-spoon-source</id>
+                                <phase>generate-sources</phase>
+                                <goals><goal>add-source</goal></goals>
+                                <configuration>
+                                    <sources>
+                                        <source>${project.build.directory}/generated-sources/spoon</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- 3) Exclure les originaux *ServiceImpl.java pour éviter doublons -->
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <excludes>
+                                <exclude>**/*ServiceImpl.java</exclude>
+                            </excludes>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 
 </project>
