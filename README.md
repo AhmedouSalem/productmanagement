@@ -151,6 +151,54 @@ curl -X POST http://localhost:8080/api/products   -H "Authorization: Bearer $TOK
 
 ---
 
+## 📡 API Endpoints
+
+### 🔓 Public Endpoints
+
+| Method | Endpoint              | Description |
+|------:|-----------------------|-------------|
+| POST  | `/api/users`          | Create a new user |
+| POST  | `/api/auth/login`     | Authenticate a user and return a JWT token |
+
+---
+
+### 🔐 Protected Endpoints (JWT required)
+
+#### 👤 Users
+
+| Method | Endpoint        | Description |
+|------:|------------------|-------------|
+| GET   | `/api/users/me` | Get current authenticated user |
+
+---
+
+#### 📦 Categories
+
+| Method | Endpoint | Description |
+|------:|----------|-------------|
+| GET   | `/api/categories` | Retrieve all categories |
+| GET   | `/api/categories/{id}` | Retrieve a category by ID |
+| POST  | `/api/categories` | Create a new category |
+| PUT   | `/api/categories/{id}` | Update an existing category |
+| DELETE| `/api/categories/{id}` | Delete a category |
+
+---
+
+#### 🛒 Products
+
+| Method | Endpoint | Description |
+|------:|----------|-------------|
+| GET   | `/api/products` | Retrieve all products |
+| GET   | `/api/products/{id}` | Retrieve a product by ID |
+| POST  | `/api/products` | Create a new product |
+| PUT   | `/api/products/{id}` | Update an existing product |
+| DELETE| `/api/products/{id}` | Delete a product |
+| GET   | `/api/products/by-category/{categoryId}` | Retrieve products by category |
+| GET   | `/api/products/most-expensive` | Retrieve the most expensive products |
+| GET   | `/api/products/by-category/{categoryId}/most-expensive` | Retrieve most expensive products by category |
+
+---
+
 ## 📊 Logging & Observability
 
 - Service-layer methods are automatically instrumented using **Spoon**
