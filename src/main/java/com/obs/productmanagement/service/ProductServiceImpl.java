@@ -11,8 +11,6 @@ import com.obs.productmanagement.model.Product;
 import com.obs.productmanagement.repository.CategoryRepository;
 import com.obs.productmanagement.repository.ProductRepository;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +18,6 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class ProductServiceImpl implements IProductService {
-    private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;

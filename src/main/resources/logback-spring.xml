@@ -1,5 +1,7 @@
 <configuration>
-    <appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+    <!-- 1) Fichier JSON dédié aux logs du TP (LPS) -->
+    <appender name="LPS_JSON" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>logs/app.jsonl</file>
 
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -10,7 +12,26 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
     </appender>
 
-    <root level="INFO">
-        <appender-ref ref="JSON_FILE"/>
+    <!-- 2) Log console pour debug général (optionnel) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ✅ On écrit dans LPS_JSON uniquement le package service (là où Spoon injecte) -->
+    <logger name="com.obs.productmanagement.service" level="INFO" additivity="false">
+        <appender-ref ref="LPS_JSON"/>
+    </logger>
+
+    <!-- (Optionnel) Si tu injectes aussi dans d’autres packages, ajoute-les ici -->
+    <!-- <logger name="com.obs.productmanagement.controller" level="INFO" additivity="false">
+      <appender-ref ref="LPS_JSON"/>
+    </logger> -->
+
+    <!-- Root : pas de fichier, seulement console (ou rien) -->
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
     </root>
+
 </configuration>

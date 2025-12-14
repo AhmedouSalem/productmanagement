@@ -1,41 +1,48 @@
 # 🛒 Product Management API
 
-API REST sécurisée pour la gestion des **utilisateurs**, **catégories** et **produits**, développée avec **Spring Boot**, **Spring Security (JWT)** et une architecture en couches (Controller / Service / Repository).
+Secure REST API for managing **users**, **categories**, and **products**, built with  
+**Spring Boot**, **Spring Security (JWT)**, and a layered architecture  
+(Controller / Service / Repository).
 
-Ce projet est conçu dans un cadre pédagogique (TP Logging & Observability) mais respecte les **bonnes pratiques professionnelles**.
+This project was developed in an academic context (TP Logging & Observability)  
+while following **professional best practices**.
 
 ---
 
-## 🚀 Fonctionnalités
+## 📦 Project Structure (Important)
 
-### 👤 Utilisateurs
+This work is composed of **three distinct projects**:
 
-* Création d’un utilisateur (endpoint public)
-* Authentification par email ou nom + mot de passe
-* Génération d’un **JWT** au login
+1. **productmanagement**  
+   → Original Spring Boot application (no instrumentation).
 
-### 🔐 Sécurité
+2. **spoon-instrumenter**  
+   → Standalone Java project using **Spoon** to automatically inject logging statements.
 
-* Authentification stateless avec **JWT**
-* Protection de tous les endpoints métiers
-* Identification de l’utilisateur courant via `SecurityContextHolder`
+3. **productmanagement-instrumented-runnable**  
+   → Runnable version of the application generated automatically after instrumentation.
 
-### 📦 Catégories
+---
 
-* CRUD catégories
+## 🚀 Features
 
-### 🛍️ Produits
+### 👤 Users
+- Public user creation
+- Authentication using email + password
+- JWT generation on login
 
-* CRUD produits
-* Récupérer tous les produits d’une catégorie
-* Récupérer les produits **les plus chers** (globalement)
-* Récupérer les produits **les plus chers par catégorie**
+### 🔐 Security
+- Stateless authentication using JWT
+- All business endpoints are protected
+- Current user identification via `SecurityContextHolder`
 
-### 🧪 Tests
+### 📦 Categories
+- Full CRUD operations
 
-* Tests unitaires sur la **couche Service** (Mockito)
-* Tests JPA sur la **couche Repository** (`@DataJpaTest`)
-* Test de démarrage Spring Boot (`@SpringBootTest`)
+### 🛍️ Products
+- Full CRUD operations
+- Retrieve products by category
+- Retrieve **most expensive products** (global and per category)
 
 ---
 
@@ -44,26 +51,16 @@ Ce projet est conçu dans un cadre pédagogique (TP Logging & Observability) mai
 ```
 com.obs.productmanagement
 ├── controller
-│   ├── AuthController
-│   ├── UserAuthController
-│   ├── CategoryController
-│   └── ProductController
 ├── service
 │   ├── impl
 │   └── interfaces
 ├── repository
-├── model (entities JPA)
+├── model
 ├── dto
 │   ├── request / response
-│   └── mapper (MapStruct)
+│   └── mapper
 ├── security
-│   ├── JwtService
-│   ├── JwtAuthenticationFilter
-│   ├── SecurityConfig
-│   └── SecurityUtils
 ├── exception
-│   ├── custom exceptions
-│   └── GlobalExceptionHandler
 └── ProductmanagementApplication
 ```
 
@@ -71,36 +68,25 @@ com.obs.productmanagement
 
 ## ⚙️ Technologies
 
-* Java 17+
-* Spring Boot 3
-* Spring Web
-* Spring Data JPA
-* Spring Security
-* JWT (jjwt)
-* Hibernate Validator
-* H2 / MySQL
-* Lombok
-* MapStruct
-* JUnit 5 / Mockito
+- Java 17+
+- Spring Boot 3
+- Spring Web / Spring Data JPA
+- Spring Security + JWT
+- Hibernate Validator
+- H2 / MySQL
+- Lombok / MapStruct
+- JUnit 5 / Mockito
+- Logback (JSON logging)
 
 ---
 
-## ▶️ Lancer le projet
-
-### 1️⃣ Cloner le projet
-
-```bash
-git clone <repository-url>
-cd product-management
-```
-
-### 2️⃣ Lancer l’application
+## ▶️ Run the application
 
 ```bash
 mvn spring-boot:run
 ```
 
-Application disponible sur :
+Application available at:
 
 ```
 http://localhost:8080
@@ -108,14 +94,12 @@ http://localhost:8080
 
 ---
 
-## 🔑 Authentification (JWT)
+## 🔑 Authentication (JWT)
 
-### ➜ Créer un utilisateur (PUBLIC)
+### Create a user (PUBLIC)
 
 ```bash
-curl -X POST http://localhost:8080/api/users \
-  -H "Content-Type: application/json" \
-  -d '{
+curl -X POST http://localhost:8080/api/users   -H "Content-Type: application/json"   -d '{
         "name": "Salem",
         "age": 25,
         "email": "salem@example.com",
@@ -123,45 +107,29 @@ curl -X POST http://localhost:8080/api/users \
       }'
 ```
 
-### ➜ Login (PUBLIC)
+### Login (PUBLIC)
 
 ```bash
-curl -X POST http://localhost:8080/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
+curl -X POST http://localhost:8080/api/auth/login   -H "Content-Type: application/json"   -d '{
         "login": "salem@example.com",
         "password": "secret123"
       }'
 ```
 
-Réponse :
+Response:
 
 ```json
 {
-  "token": "<JWT_TOKEN>",
-  "user": {
-    "id": 1,
-    "name": "Salem",
-    "email": "salem@example.com"
-  }
+  "token": "<JWT_TOKEN>"
 }
-```
-
-Stocker le token :
-
-```bash
-TOKEN="<JWT_TOKEN>"
 ```
 
 ---
 
-## 📂 Catégories (JWT requis)
+## 📂 Categories (JWT required)
 
 ```bash
-curl -X POST http://localhost:8080/api/categories \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
+curl -X POST http://localhost:8080/api/categories   -H "Authorization: Bearer $TOKEN"   -H "Content-Type: application/json"   -d '{
         "name": "Electronics",
         "description": "Electronic devices"
       }'
@@ -169,13 +137,10 @@ curl -X POST http://localhost:8080/api/categories \
 
 ---
 
-## 🛒 Produits (JWT requis)
+## 🛒 Products (JWT required)
 
 ```bash
-curl -X POST http://localhost:8080/api/products \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
+curl -X POST http://localhost:8080/api/products   -H "Authorization: Bearer $TOKEN"   -H "Content-Type: application/json"   -d '{
         "name": "MacBook Pro",
         "description": "Laptop",
         "price": 2499.99,
@@ -186,60 +151,78 @@ curl -X POST http://localhost:8080/api/products \
 
 ---
 
-## 🔍 Recherche avancée
+## 📊 Logging & Observability
 
-### ➜ Produits les plus chers (global)
+- Service-layer methods are automatically instrumented using **Spoon**
+- Logs are generated in **JSON format**
+- Only application logs are persisted (framework logs are filtered out)
+- Log file location:
 
-```bash
-curl -H "Authorization: Bearer $TOKEN" \
-     http://localhost:8080/api/products/most-expensive
+```
+logs/app.jsonl
 ```
 
-### ➜ Produits d’une catégorie
+Each log entry contains:
+- event type (DB_READ, DB_WRITE, MOST_EXPENSIVE_SEARCH)
+- service class and method
+- user identifier
 
+---
+
+## ▶️ Scenarios execution (Q4)
+
+A shell script is provided to automatically:
+- create 10 users
+- authenticate them
+- execute different usage scenarios (READ / WRITE / MOST_EXPENSIVE)
 ```bash
-curl -H "Authorization: Bearer $TOKEN" \
-     http://localhost:8080/api/products/by-category/1
+chmod +x run-scenarios.sh
 ```
 
-### ➜ Produits les plus chers par catégorie
+```bash
+./run-scenarios.sh
+```
+
+---
+
+## 📈 Log analysis & profiling (Q5)
+
+A lightweight Python script is provided to analyse logs and identify user profiles.
 
 ```bash
-curl -H "Authorization: Bearer $TOKEN" \
-     http://localhost:8080/api/products/by-category/1/most-expensive
+python3 analyze_logs.py
+```
+
+Example output:
+
+```
+userId=2 counts={'DB_READ': 9} profile=DB_READ
+userId=7 counts={'DB_WRITE': 2} profile=DB_WRITE
+userId=10 counts={'MOST_EXPENSIVE_SEARCH': 5} profile=MOST_EXPENSIVE_SEARCH
 ```
 
 ---
 
 ## 🧪 Tests
 
-Lancer tous les tests :
-
 ```bash
 mvn test
 ```
 
-* Tests unitaires : couche **Service**
-* Tests JPA : couche **Repository**
-* Test de démarrage : `@SpringBootTest`
+- Unit tests: Service layer
+- JPA tests: Repository layer
+- Application startup test
 
 ---
 
-## 📊 Logging & Observability (prévu)
+## 👨‍🎓 Author
 
-* Logs contextualisés (userId, email, operation)
-* Préparation pour OpenTelemetry / Grafana
-
----
-
-## 👨‍🎓 Auteur
-
-Projet réalisé par **Ahmedou Salem**
-Master Informatique – Génie Logiciel
+**Ahmedou Salem**  
+Master Informatique – Génie Logiciel  
 Université de Montpellier
 
 ---
 
-## 📄 Licence
+## 📄 License
 
-Projet pédagogique – usage académique.
+Educational project – academic use only.
