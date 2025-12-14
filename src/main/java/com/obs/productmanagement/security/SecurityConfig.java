@@ -1,5 +1,7 @@
 package com.obs.productmanagement.security;
 
+import com.obs.productmanagement.logging.LoggingMdcFilter;
+import jakarta.servlet.Filter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,9 +20,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final LoggingMdcFilter loggingMdcFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, LoggingMdcFilter loggingMdcFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.loggingMdcFilter = loggingMdcFilter;
     }
 
     @Bean
@@ -38,7 +42,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 // On ajoute notre filtre JWT AVANT UsernamePasswordAuthenticationFilter
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(loggingMdcFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }
