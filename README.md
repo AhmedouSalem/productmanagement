@@ -164,14 +164,6 @@ curl -X POST http://localhost:8080/api/products   -H "Authorization: Bearer $TOK
 
 ### 🔐 Protected Endpoints (JWT required)
 
-#### 👤 Users
-
-| Method | Endpoint        | Description |
-|------:|------------------|-------------|
-| GET   | `/api/users/me` | Get current authenticated user |
-
----
-
 #### 📦 Categories
 
 | Method | Endpoint | Description |
