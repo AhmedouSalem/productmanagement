@@ -7,6 +7,7 @@ import com.obs.productmanagement.exception.UserAlreadyExistsException;
 import com.obs.productmanagement.exception.UserNotFoundException;
 import com.obs.productmanagement.model.User;
 import com.obs.productmanagement.repository.UserRepository;
+import com.obs.productmanagement.security.SecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -53,4 +54,19 @@ public class UserServiceImpl implements IUserService {
             throw new UserNotFoundException(login, password);
         }
     }
+
+    @Override
+    public UserResponse getCurrentUser() {
+        String email = SecurityUtils.getCurrentUserEmail();
+
+        if (email == null) {
+            throw new UserNotFoundException("authenticated user");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
+
+        return userMapper.toResponse(user);
+    }
+
 }

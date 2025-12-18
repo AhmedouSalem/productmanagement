@@ -7,4 +7,5 @@ public interface IUserService {
     UserResponse createUser(UserCreateRequest request);
     UserResponse getUserById(Long id);
     UserResponse getUserByNameOrEmailAndPassword(String login, String password);
+    UserResponse getCurrentUser();
 }

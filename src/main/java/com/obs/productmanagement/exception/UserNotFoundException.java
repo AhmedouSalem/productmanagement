@@ -8,4 +8,8 @@ public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(String username, String password) {
         super("User with name " + username + " or password " + password + " not found");
     }
+
+    public UserNotFoundException(String username) {
+        super("User with name " + username + " not found");
+    }
 }

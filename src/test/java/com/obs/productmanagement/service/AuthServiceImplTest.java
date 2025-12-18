@@ -64,6 +64,6 @@ class AuthServiceImplTest {
                 .isInstanceOf(UserNotFoundException.class);
 
         verify(userService).getUserByNameOrEmailAndPassword("unknown@example.com", "wrong");
-        verifyNoInteractions(jwtService); // IMPORTANT : pas de token si login KO
+        verifyNoInteractions(jwtService); // pas de token si login KO
     }
 }

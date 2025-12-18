@@ -25,5 +25,12 @@ public class UserAuthController {
         URI location = URI.create("/api/users/" + created.id());
         return ResponseEntity.created(location).body(created);
     }
+
+    // JWT requis
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        return ResponseEntity.ok(userService.getCurrentUser());
+    }
+
 }
 
