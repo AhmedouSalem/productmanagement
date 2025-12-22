@@ -35,36 +35,24 @@ services:
     networks: [ obs ]
 
   backend:
-    image: eclipse-temurin:21-jre
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: product-obs-backend
-    working_dir: /app
-    volumes:
-      - ./target/app.jar:/app/app.jar:ro
-      - ./otel/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
     environment:
-      # Service name dans Jaeger
       - OTEL_SERVICE_NAME=product-obs-backend
-
-      # Export traces -> collector (dans le réseau docker)
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
       - OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=http/protobuf
-
-      # Propagation W3C tracecontext (traceparent)
       - OTEL_PROPAGATORS=tracecontext,baggage
-
-      # Optionnel: éviter bruit metrics/logs
       - OTEL_METRICS_EXPORTER=none
       - OTEL_LOGS_EXPORTER=none
-
-      # Active l’agent au démarrage JVM
-      - JAVA_TOOL_OPTIONS=-javaagent:/otel/opentelemetry-javaagent.jar
     ports:
       - "8080:8080"
-    command: ["java", "-jar", "/app/app.jar"]
     depends_on:
       - otel-collector
       - mysql
-    networks: [obs]
+    networks: [ obs ]
+  
 
   frontend:
     build: ../product-obs-frontend
