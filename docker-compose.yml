@@ -52,7 +52,7 @@ services:
       - otel-collector
       - mysql
     networks: [ obs ]
-  
+
 
   frontend:
     build: ../product-obs-frontend
