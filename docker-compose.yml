@@ -1,0 +1,83 @@
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.41
+    container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686"
+    networks: [obs]
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: otel-collector
+    command: ["--config=/etc/otelcol/config.yaml"]
+    volumes:
+      - ./otel-collector.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "14318:4318"   # browser -> collector
+    depends_on:
+      - jaeger
+    networks: [obs]
+
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: productdb
+      MYSQL_USER: productuser
+      MYSQL_PASSWORD: productpass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks: [ obs ]
+
+  backend:
+    image: eclipse-temurin:21-jre
+    container_name: product-obs-backend
+    working_dir: /app
+    volumes:
+      - ./target/app.jar:/app/app.jar:ro
+      - ./otel/opentelemetry-javaagent.jar:/otel/opentelemetry-javaagent.jar:ro
+    environment:
+      # Service name dans Jaeger
+      - OTEL_SERVICE_NAME=product-obs-backend
+
+      # Export traces -> collector (dans le réseau docker)
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=http/protobuf
+
+      # Propagation W3C tracecontext (traceparent)
+      - OTEL_PROPAGATORS=tracecontext,baggage
+
+      # Optionnel: éviter bruit metrics/logs
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+
+      # Active l’agent au démarrage JVM
+      - JAVA_TOOL_OPTIONS=-javaagent:/otel/opentelemetry-javaagent.jar
+    ports:
+      - "8080:8080"
+    command: ["java", "-jar", "/app/app.jar"]
+    depends_on:
+      - otel-collector
+      - mysql
+    networks: [obs]
+
+  frontend:
+    build: ../product-obs-frontend
+    container_name: product-obs-frontend
+    ports:
+      - '4200:4200'
+    depends_on:
+      - backend
+    networks: [ obs ]
+
+
+networks:
+  obs: {}
+
+volumes:
+  mysql_data: {}
