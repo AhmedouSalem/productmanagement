@@ -1,0 +1,60 @@
+services:
+  mysql-e2e:
+    image: mysql:8.4
+    container_name: mysql-e2e
+    environment:
+      MYSQL_DATABASE: productdb_e2e
+      MYSQL_USER: productuser
+      MYSQL_PASSWORD: productpass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_e2e_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    networks:
+      - obs-e2e
+
+  backend-e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: product-obs-backend-e2e
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-e2e:3306/productdb_e2e?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=productuser
+      - SPRING_DATASOURCE_PASSWORD=productpass
+
+      # Pour l'instant on désactive l’agent OpenTelemetry pendant les tests E2E
+      - JAVA_TOOL_OPTIONS=
+      - OTEL_SDK_DISABLED=true
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql-e2e:
+        condition: service_healthy
+    networks:
+      - obs-e2e
+
+  frontend-e2e:
+    build:
+      context: ../product-obs-frontend
+      dockerfile: Dockerfile
+    container_name: product-obs-frontend-e2e
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend-e2e
+    networks:
+      - obs-e2e
+
+networks:
+  obs-e2e: {}
+
+volumes:
+  mysql_e2e_data: {}

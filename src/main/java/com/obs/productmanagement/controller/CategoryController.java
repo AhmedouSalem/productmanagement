@@ -3,6 +3,7 @@ package com.obs.productmanagement.controller;
 import com.obs.productmanagement.dto.CategoryRequest;
 import com.obs.productmanagement.dto.CategoryResponse;
 import com.obs.productmanagement.service.ICategoryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
 public class CategoryController {

@@ -29,9 +29,15 @@ services:
       MYSQL_PASSWORD: productpass
       MYSQL_ROOT_PASSWORD: rootpass
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
     networks: [ obs ]
 
   backend:
@@ -40,6 +46,10 @@ services:
       dockerfile: Dockerfile
     container_name: product-obs-backend
     environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/productdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=productuser
+      - SPRING_DATASOURCE_PASSWORD=productpass
+
       - OTEL_SERVICE_NAME=product-obs-backend
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
       - OTEL_EXPORTER_OTLP_TRACES_PROTOCOL=http/protobuf
@@ -49,8 +59,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - otel-collector
-      - mysql
+      mysql:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
     networks: [ obs ]
 
 

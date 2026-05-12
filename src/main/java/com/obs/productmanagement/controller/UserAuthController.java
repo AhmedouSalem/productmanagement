@@ -3,6 +3,7 @@ package com.obs.productmanagement.controller;
 import com.obs.productmanagement.dto.UserCreateRequest;
 import com.obs.productmanagement.dto.UserResponse;
 import com.obs.productmanagement.service.IUserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserAuthController {

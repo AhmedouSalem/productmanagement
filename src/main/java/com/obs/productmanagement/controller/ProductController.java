@@ -3,6 +3,7 @@ package com.obs.productmanagement.controller;
 import com.obs.productmanagement.dto.ProductRequest;
 import com.obs.productmanagement.dto.ProductResponse;
 import com.obs.productmanagement.service.IProductService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
@@ -15,6 +16,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 @Validated
