@@ -71,7 +71,7 @@ pipeline {
         stage('Cypress E2E Tests') {
             steps {
                 dir('product-obs-frontend') {
-                    sh 'npx cypress run'
+                    sh 'xvfb-run --auto-servernum npx cypress run --browser electron'
                 }
             }
         }
