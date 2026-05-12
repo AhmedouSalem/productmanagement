@@ -70,9 +70,15 @@ pipeline {
 
         stage('Cypress E2E Tests') {
             steps {
-                dir('product-obs-frontend') {
-                    sh 'xvfb-run --auto-servernum npx cypress run --browser electron'
-                }
+                sh '''
+                    docker run --rm \
+                    --network host \
+                    --volumes-from jenkins \
+                    -w "$WORKSPACE/product-obs-frontend" \
+                    --entrypoint cypress \
+                    cypress/included:15.14.2 \
+                    run --browser electron --config baseUrl=http://localhost:4200
+                '''
             }
         }
 
@@ -87,6 +93,9 @@ pipeline {
     post {
         always {
             sh 'docker compose -f docker-compose.e2e.yml down -v || true'
+
+            archiveArtifacts artifacts: 'product-obs-frontend/cypress/videos/**/*.mp4', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'product-obs-frontend/cypress/screenshots/**/*', allowEmptyArchive: true
         }
 
         success {
