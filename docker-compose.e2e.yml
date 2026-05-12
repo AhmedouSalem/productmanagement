@@ -43,7 +43,7 @@ services:
 
   frontend-e2e:
     build:
-      context: ../product-obs-frontend
+      context: ./product-obs-frontend
       dockerfile: Dockerfile
     container_name: product-obs-frontend-e2e
     ports:

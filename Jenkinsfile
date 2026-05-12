@@ -33,6 +33,27 @@ pipeline {
             }
         }
 
+        stage('DEBUG - Check compose and frontend path') {
+            steps {
+                sh '''
+                    echo "Current directory:"
+                    pwd
+
+                    echo "Workspace content:"
+                    ls -la
+
+                    echo "Frontend folder content:"
+                    ls -la product-obs-frontend || true
+
+                    echo "docker-compose.e2e.yml context lines:"
+                    grep -n "context" docker-compose.e2e.yml || true
+
+                    echo "Resolved docker compose config:"
+                    docker compose -f docker-compose.e2e.yml config | grep -A 8 "frontend-e2e"
+                 '''
+            }
+        }
+
         stage('Start E2E Stack') {
             steps {
                 sh 'docker compose -f docker-compose.e2e.yml down -v || true'
